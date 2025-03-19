@@ -1,53 +1,47 @@
 import numpy as np
 import trimesh
-import tqdm
 
 from pynamics.kinematics.topology import Body, Frame, Topology
-from pynamics.kinematics.joint import RevoluteJoint, FreeJoint, FixedJoint
+from pynamics.kinematics.joint import RevoluteJoint, FixedJoint
 from pynamics.visualizer import Visualizer
-from pynamics.boatsim import Sim
 
 body = Body(
     mass=1,
-    center_of_mass=np.matrix([0,0.0,0.0]).T,
-    inertia_matrix=np.matrix([
-        [1, 0, 0],
-        [0, 1, 0],
-        [0, 0, 1]
-    ])
+    center_of_mass=np.matrix([0, 0.0, 0.0]).T,
+    inertia_matrix=np.matrix([[1, 0, 0], [0, 1, 0], [0, 0, 1]]),
 )
 base_mounting_point = Frame(
-    translation=np.matrix([2.0,0.0,0.0]).T, 
-    rotation=Frame.get_rotation_matrix(0.0, np.matrix([0.0,0.0,0.0]).T)
+    translation=np.matrix([2.0, 0.0, 0.0]).T,
+    rotation=Frame.get_rotation_matrix(0.0, np.matrix([0.0, 0.0, 0.0]).T),
 )
 short_end = Frame(
-    translation=np.matrix([0.25,0.1,0.0]).T, 
-    rotation=Frame.get_rotation_matrix(0.0, np.matrix([0.0,0.0,0.0]).T)
+    translation=np.matrix([0.25, 0.1, 0.0]).T,
+    rotation=Frame.get_rotation_matrix(0.0, np.matrix([0.0, 0.0, 0.0]).T),
 )
 long_end = Frame(
-    translation=np.matrix([1.0,0.1,0.0]).T, 
-    rotation=Frame.get_rotation_matrix(0.0, np.matrix([0.0,0.0,0.0]).T)
+    translation=np.matrix([1.0, 0.1, 0.0]).T,
+    rotation=Frame.get_rotation_matrix(0.0, np.matrix([0.0, 0.0, 0.0]).T),
 )
 long_end_for_yaw = Frame(
-    translation=np.matrix([1.0,0.0,0.1]).T, 
-    rotation=Frame.get_rotation_matrix(0.0, np.matrix([0.0,0.0,0.0]).T)
+    translation=np.matrix([1.0, 0.0, 0.1]).T,
+    rotation=Frame.get_rotation_matrix(0.0, np.matrix([0.0, 0.0, 0.0]).T),
 )
 modules_end1 = Frame(
-    translation=np.matrix([0.0,0.0,-3.0]).T, 
-    rotation=Frame.get_rotation_matrix(0.0, np.matrix([0.0,0.0,0.0]).T)
+    translation=np.matrix([0.0, 0.0, -3.0]).T,
+    rotation=Frame.get_rotation_matrix(0.0, np.matrix([0.0, 0.0, 0.0]).T),
 )
 modules_end2 = Frame(
-    translation=np.matrix([0.0,0.0,3.0]).T, 
-    rotation=Frame.get_rotation_matrix(0.0, np.matrix([0.0,0.0,0.0]).T)
+    translation=np.matrix([0.0, 0.0, 3.0]).T,
+    rotation=Frame.get_rotation_matrix(0.0, np.matrix([0.0, 0.0, 0.0]).T),
 )
 
 module_1_location = Frame(
-    translation=np.matrix([4.0,3.0,0.0]).T, 
-    rotation=Frame.get_rotation_matrix(0.0, np.matrix([0.0,0.0,0.0]).T)
+    translation=np.matrix([4.0, 3.0, 0.0]).T,
+    rotation=Frame.get_rotation_matrix(0.0, np.matrix([0.0, 0.0, 0.0]).T),
 )
 module_2_location = Frame(
-    translation=np.matrix([4.0,0.0,3.0]).T, 
-    rotation=Frame.get_rotation_matrix(np.pi/2, np.matrix([1.0,0.0,0.0]).T)
+    translation=np.matrix([4.0, 0.0, 3.0]).T,
+    rotation=Frame.get_rotation_matrix(np.pi / 2, np.matrix([1.0, 0.0, 0.0]).T),
 )
 
 
@@ -79,60 +73,79 @@ yaw_body.add_frame(short_end, "End Effector")
 robot = Topology()
 robot.add_connection("World", "Identity", base, "Base Body", joint=FixedJoint())
 robot.add_connection(
-    "Base Body", "Base to Module 1", module1, "Module 1", joint=FixedJoint())
+    "Base Body", "Base to Module 1", module1, "Module 1", joint=FixedJoint()
+)
 robot.add_connection(
-    "Base Body", "Base to Module 2", module2, "Module 2", joint=FixedJoint())
+    "Base Body", "Base to Module 2", module2, "Module 2", joint=FixedJoint()
+)
 
 robot.add_connection(
-    "Base Body", "Base to Roll Body", roll_body, "Roll Body",
-    joint=RevoluteJoint(0))
+    "Base Body", "Base to Roll Body", roll_body, "Roll Body", joint=RevoluteJoint(0)
+)
 robot.add_connection(
-    "Roll Body", "Roll Body to Pitch Body 1", pitch_body_1, "Pitch Body 1",
-    joint=RevoluteJoint(1))
+    "Roll Body",
+    "Roll Body to Pitch Body 1",
+    pitch_body_1,
+    "Pitch Body 1",
+    joint=RevoluteJoint(1),
+)
 robot.add_connection(
-    "Pitch Body 1", "Pitch Body 1 to Pitch Body 2", pitch_body_2, "Pitch Body 2",
-    joint=RevoluteJoint(1))
+    "Pitch Body 1",
+    "Pitch Body 1 to Pitch Body 2",
+    pitch_body_2,
+    "Pitch Body 2",
+    joint=RevoluteJoint(1),
+)
 robot.add_connection(
-    "Pitch Body 2", "Pitch Body 2 to Yaw Body", yaw_body, "Yaw Body",
-    joint=RevoluteJoint(2))
+    "Pitch Body 2",
+    "Pitch Body 2 to Yaw Body",
+    yaw_body,
+    "Yaw Body",
+    joint=RevoluteJoint(2),
+)
 
 robot_vis = Visualizer(
     topology=robot,
     visualization_models={
         ("Base Body", "Identity"): trimesh.load(
-            file_obj="/home/alex/Projects/PyBoAtSim/models/link/Base.obj", 
-            file_type="obj", 
-            force="mesh"),
+            file_obj="/home/alex/Projects/PyBoAtSim/models/link/Base.obj",
+            file_type="obj",
+            force="mesh",
+        ),
         ("Module 1", "Identity"): trimesh.load(
-            file_obj="/home/alex/Projects/PyBoAtSim/models/link/Base.obj", 
-            file_type="obj", 
-            force="mesh"),
+            file_obj="/home/alex/Projects/PyBoAtSim/models/link/Base.obj",
+            file_type="obj",
+            force="mesh",
+        ),
         ("Module 2", "Identity"): trimesh.load(
-            file_obj="/home/alex/Projects/PyBoAtSim/models/link/Base.obj", 
-            file_type="obj", 
-            force="mesh"),
+            file_obj="/home/alex/Projects/PyBoAtSim/models/link/Base.obj",
+            file_type="obj",
+            force="mesh",
+        ),
         ("Roll Body", "Identity"): trimesh.load(
-            file_obj="/home/alex/Projects/PyBoAtSim/models/link/Link0p25m.obj", 
-            file_type="obj", 
-            force="mesh"),
+            file_obj="/home/alex/Projects/PyBoAtSim/models/link/Link0p25m.obj",
+            file_type="obj",
+            force="mesh",
+        ),
         ("Pitch Body 1", "Identity"): trimesh.load(
-            file_obj="/home/alex/Projects/PyBoAtSim/models/link/Link1m.obj", 
-            file_type="obj", 
-            force="mesh"),
+            file_obj="/home/alex/Projects/PyBoAtSim/models/link/Link1m.obj",
+            file_type="obj",
+            force="mesh",
+        ),
         ("Pitch Body 2", "Identity"): trimesh.load(
-            file_obj="/home/alex/Projects/PyBoAtSim/models/link/Link1m.obj", 
-            file_type="obj", 
-            force="mesh"),
+            file_obj="/home/alex/Projects/PyBoAtSim/models/link/Link1m.obj",
+            file_type="obj",
+            force="mesh",
+        ),
         ("Yaw Body", "Identity"): trimesh.load(
-            file_obj="/home/alex/Projects/PyBoAtSim/models/link/Link0p25m.obj", 
-            file_type="obj", 
-            force="mesh"),
-    })
+            file_obj="/home/alex/Projects/PyBoAtSim/models/link/Link0p25m.obj",
+            file_type="obj",
+            force="mesh",
+        ),
+    },
+)
 
-robot.joints["Roll Body"].set_configuration(np.matrix([[np.pi/4]]))
-robot.joints["Pitch Body 1"].set_configuration(np.matrix([[np.pi/4]]))
-robot.joints["Pitch Body 2"].set_configuration(np.matrix([[np.pi/4]]))
-robot.joints["Yaw Body"].set_configuration(np.matrix([[np.pi/4]]))
-
-if __name__ == "__main__":
-    robot_sim = py
+robot.joints["Roll Body"].set_configuration(np.matrix([[np.pi / 4]]))
+robot.joints["Pitch Body 1"].set_configuration(np.matrix([[np.pi / 4]]))
+robot.joints["Pitch Body 2"].set_configuration(np.matrix([[np.pi / 4]]))
+robot.joints["Yaw Body"].set_configuration(np.matrix([[np.pi / 4]]))

@@ -1,6 +1,7 @@
 **/__pycache__
 pynamics.egg-info
 .*
+!.github
 **/*.png
 **/*.csv
 **.mp4
